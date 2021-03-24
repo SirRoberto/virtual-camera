@@ -1,0 +1,9 @@
+# Nazwa_figury(Pozycja, Wymiary)
+# Np.:
+# Cuboid((0,0,0),(50,50,50))
+# W tej wersji programu  mozliwe jest tworzenie tylko prostopadloscianow
+
+Cuboid( (-150,0,150),(50,60,50) )
+Cuboid( (-50, 10, 150), ( 60, 80, 60 ))
+Cuboid( (50,20,150),(70,100,70) )
+Cuboid ( (150,30,150),(80,120,80) )
