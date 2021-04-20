@@ -1,5 +1,6 @@
-from PyQt6.QtGui import QPainter, QColor
+from PyQt6.QtGui import QPainter, QColor, QPolygon, QPen
 from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import QPoint
 from Cuboid import Cuboid
 from vector import Vector3
 import os
@@ -13,16 +14,25 @@ class Painter(QPainter):
         super().__init__(widget)
         self.widget = widget
         self.setPen(QColor('white'))
+        self.setBrush(QColor('blue'))
         self.setRenderHint(QPainter.RenderHints.Antialiasing)
 
-    def drawLine(self, line):
-        point1 = line[0]
-        point2 = line[1]
-        x1 = self.evaluate(line[0].getX() + self.widget.width()/2)
-        y1 = self.evaluate(-line[0].getY() + self.widget.height()/2)
-        x2 = self.evaluate(line[1].getX() + self.widget.width()/2)
-        y2 = self.evaluate(-line[1].getY() + self.widget.height()/2)
-        super().drawLine(x1, y1, x2, y2)
+    def drawPolygon(self, polygons):
+        for polygon in polygons:
+            xy = []
+            for p in polygon[:-1]:
+                x = self.evaluate(p.getX() + self.widget.width()/2)
+                y = self.evaluate(-p.getY() + self.widget.height()/2)
+                xy.append(QPoint(x, y))
+            self.setBrush(QColor(polygon[-1][0]))
+
+            if self.widget.camera.controler.mode:
+                self.setPen(QColor(polygon[-1][0]))
+            else: 
+                self.setPen(QColor('white'))
+
+            super().drawPolygon(QPolygon(xy))
+        self.setPen(QColor('white'))
 
     def drawLines(self, lines):
         for line in lines:
@@ -38,6 +48,7 @@ class Painter(QPainter):
 
 
 def importObjects(filePath: str):
+    i = 0
     objects = []
     with open(os.path.join(__location__, filePath), "r") as inFile:
         lines = inFile.read().splitlines()
@@ -47,9 +58,10 @@ def importObjects(filePath: str):
                 name = name.strip()
                 parameters = parameters.strip()[:-1]
                 if(name == 'Cuboid'):
-                    parameters = re.findall(r"\([ -]*\d+ *\,[ -]*\d+ *\,[ -]*\d+ *\)", parameters)
+                    p = re.findall(r"\([ -]*\d+ *\,[ -]*\d+ *\,[ -]*\d+ *\)", parameters)
+                    color = str(re.findall(r"[a-zA-Z]+", parameters)[0])
                     try:
-                        position, dimension = parameters[0], parameters[1]
+                        position, dimension = p[0], p[1]
                         position = re.findall(r"-*\w+", position)
                         dimension = re.findall(r"-*\w+", dimension)
                         position = [float(x) for x in position]
@@ -58,8 +70,10 @@ def importObjects(filePath: str):
                             objects.append(Cuboid(
                                 Vector3(position[0], position[1], position[2]),
                                 Vector3(dimension[0], dimension[1], dimension[2]),
-                                Vector3(0,0,0)
+                                Vector3(0,0,0),
+                                [color]
                             ))
+                            i += 1
                         except:
                             raise Exception("Niepowodzenie utworzenia obiektu")
                     except Exception as err:

@@ -2,6 +2,7 @@ from vector import Vector3
 
 class Controler():
     def __init__(self, camera):
+        self.mode = True
         self.camera = camera
         self.delta = 1
         self.panel = {
@@ -23,8 +24,11 @@ class Controler():
             ord(']') : lambda : self.zoom(-1),
 
             ord('+') : lambda : self.speed(2),
-            ord('-') : lambda : self.speed(0.5)
+            ord('-') : lambda : self.speed(0.5),
+
+            ord('.') : lambda : self.change_mode()
         }
+
 
     def translateCamera(self, v:Vector3, delta=1):
         self.camera.transform.translate(v, delta)
@@ -43,3 +47,7 @@ class Controler():
 
     def speed(self, d):
         self.delta *= d
+
+
+    def change_mode(self):
+        self.mode = not self.mode

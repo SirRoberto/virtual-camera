@@ -3,7 +3,13 @@
 # Cuboid((0,0,0),(50,50,50))
 # W tej wersji programu  mozliwe jest tworzenie tylko prostopadloscianow
 
-Cuboid( (-150,0,150),(50,60,50) )
-Cuboid( (-50, 10, 150), ( 60, 80, 60 ))
-Cuboid( (50,20,150),(70,100,70) )
-Cuboid ( (150,30,150),(80,120,80) )
+Cuboid( (-50,0,50), (50,50,50), 'red')
+Cuboid( (-50,10,150), (60,60,60), 'blue')
+Cuboid( (50,20,50), (70,70,80), 'orange')
+Cuboid( (50,30,150), (80,80,80), 'green')
+Cuboid( (-50,10,150), (60,80,60), 'blue')
+
+#Cuboid( (150,20,150), (70,70,70), 'red')
+#Cuboid( (250,30,150), (100,140,50), 'blue')
+#Cuboid( (350,20,150), (80,30,90), 'orange')
+#Cuboid( (450,30,150), (60,60,60), 'green')

@@ -13,9 +13,9 @@ class Camera(Object, PerspectiveProjection):
         self.controler = Controler(self)
 
 
-    def projectObject(self, mesh:Mesh):
+    def projectObject(self, polygons):
         self.d = self.__calc_vpd(self.fov)
-        return super().projectObject(mesh, self.location, self.rotation, self.d)
+        return super().projectPolygons(polygons, self.location, self.rotation, self.d)
         
 
     def __calc_vpd(self, fov):

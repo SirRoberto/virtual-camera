@@ -2,7 +2,9 @@ from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 from Cuboid import Cuboid
+from Triangle import Triangle
 from Camera import Camera
+from SpacePartitioning import BinarySpacePartitioning
 from utils import Painter, importObjects
 
 from vector import Vector3
@@ -15,8 +17,9 @@ class Scene(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.interface()
-        self.camera = Camera(Vector3(0,10,0), Vector3(self.width(),self.height(),0), Vector3(0,0,0), 90)
-        self.objects = self.createObjects()
+        self.camera = Camera(Vector3(60,60,-100), Vector3(self.width(),self.height(),0), Vector3(0,0,0), 90)
+        self.createObjects()
+        self.determineVisibleSurface()
         self.keylist = []
 
 
@@ -27,7 +30,19 @@ class Scene(QWidget):
 
 
     def createObjects(self):
-        return importObjects("objects.txt")
+        #self.objects = importObjects("objects.txt")
+
+        v = Vector3(-100,0,0)
+        self.objects =[
+            Triangle(Vector3(0,0,0)+v, Vector3(40,0,0)+v, Vector3(20,140,-10)+v, ['red']),
+            Triangle(Vector3(-40,20,-10)+v, Vector3(100,0,0)+v, Vector3(100,40,0)+v, ['green']),
+            Triangle(Vector3(60,100,0)+v, Vector3(80,-40,-10)+v, Vector3(100,100,0)+v, ['blue']),
+            Triangle(Vector3(0,100,0)+v, Vector3(0,60,0)+v, Vector3(140,80,-10)+v, ['orange']),
+        ]
+
+
+    def determineVisibleSurface(self):
+        self.partitioning = BinarySpacePartitioning(self.objects)
 
 
     def paintEvent(self, event):
@@ -35,9 +50,9 @@ class Scene(QWidget):
         self.camera.setWidth(self.width())
         self.camera.setHeigth(self.height())
 
-        for o in self.objects:
-            lines = self.camera.projectObject(o.mesh)
-            painter.drawLines(lines)
+        polygons = self.partitioning.getOrderedPolygons(self.camera.location)
+        polygons = self.camera.projectObject(polygons)
+        painter.drawPolygon(polygons)
 
         font = painter.font()
         font.setPixelSize(18)

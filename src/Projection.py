@@ -6,18 +6,20 @@ import numpy as np
 
 class PerspectiveProjection():
 
-    def projectObject(self, mesh:Mesh, pos:Vector3, rot:Vector3, d):
-        points_ = []
-        for point in mesh.vertices:
-            p_ = self.__projectPoint(point, pos, rot, d)
-            vec = Vector2(p_[0,0], p_[0,1])
-            points_.append(vec)
+    def projectPolygons(self, polygons, pos:Vector3, rot:Vector3, d):
+        projected_polygons = []
+        for polygon in polygons:
+            if not self.__is_visible(polygon[-2], polygon[0], pos.vec[:3]):
+                continue
+            projected_points = []
+            for point in polygon[:-2]:
+                point = Vector3(point[0], point[1], point[2])
+                point = self.__projectPoint(point, pos, rot, d)
+                projected_points.append(point)
+            projected_points.append(polygon[-1])
+            projected_polygons.append(projected_points)
 
-        lines = []
-        for x, y in zip(mesh.edges[0::2], mesh.edges[1::2]):
-            line = (points_[x], points_[y])
-            lines.append(line)
-        return lines
+        return projected_polygons
 
 
     def __projectPoint(self, point:Vector3, pos:Vector3, rot:Vector3, d):
@@ -34,4 +36,12 @@ class PerspectiveProjection():
             [0, 0,1/d,0]
         ])
         P = np.dot(M, point.vec)
-        return P/P[-1,-1]
+        P = P / P[-1,-1]
+
+        return Vector2(P[0,0], P[0,1])
+
+
+    def __is_visible(self, n_p, p_p, pos):
+        v = p_p - pos
+        x = (v/np.linalg.norm(v)).dot(n_p/np.linalg.norm(n_p))
+        return True if x > 0 else False
